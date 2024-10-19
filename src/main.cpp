@@ -76,6 +76,7 @@ void handler_button2(){
 
 void handler_estopActivation(){
     zipline.estop();
+    effectSequencer.stop();
 
     deactivateSocket1();
     deactivateSocket2();
@@ -110,8 +111,11 @@ void handler_lightbarrier2(){
 }
 
 void handler_motorAlarm(AlarmType alm){
+    effectSequencer.stop();
     deactivateSocket1();
     deactivateSocket2();
+    audioStop();
+    ledGreen.on();
 
     switch(alm){
 
@@ -138,9 +142,9 @@ void handler_motorAlarm(AlarmType alm){
 void event_ledGreenRunning(){ledGreen.blink();}
 void event_ledGreenIdle(){ledGreen.on();}
 
+long zlRunupDelay = ZL_RUNUP_DELAY;
 const int seqLen = 10;
-int zlRunupDelay = ZL_RUNUP_DELAY;
-BEGIN_SEQUENCE(launchSequence)
+BEGIN_SEQUENCE(effectSequence)
     DEFINE_EVENT_NO_PARAM(event_ledGreenRunning)
     EVENT_DELAY(&zlRunupDelay)
     DEFINE_EVENT_NO_PARAM(activateSocket1)
@@ -197,7 +201,7 @@ void setup() {
 
     configureMP3();
 
-    effectSequencer.setSequence(&launchSequence[0], seqLen);
+    effectSequencer.setSequence(&effectSequence[0], seqLen);
 
     handler_estopActivation();
 }
@@ -218,18 +222,18 @@ void loop() {
     mp3.check();
 
     // measure number of loop iterations per second
-    #ifdef DEBUG
-        loopIterationsCnt ++;
+    #ifdef DEBUG_MEASURE_LOOP_TIME
+    loopIterationsCnt ++;
 
-        if(loopIterationsCnt == 20000){
-            unsigned long iterationsPerSec = 20e6/(millis() - lastLoopSpeedMeasurement);
+    if(loopIterationsCnt == 20000){
+        unsigned long iterationsPerSec = 20e6/(millis() - lastLoopSpeedMeasurement);
 
-            Serial.print("Loop iterations per second: ");
-            Serial.println(iterationsPerSec);
+        Serial.print("Loop iterations per second: ");
+        Serial.println(iterationsPerSec);
 
-            loopIterationsCnt = 0;
-            lastLoopSpeedMeasurement = millis();
-        }
+        loopIterationsCnt = 0;
+        lastLoopSpeedMeasurement = millis();
+    }
     #endif   
 }
 

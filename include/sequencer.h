@@ -2,6 +2,7 @@
 #define SEQUENCER_H
 
 #include <Arduino.h>
+#include "configuration.h"
 
 // Todo: Make Event array const in macros and Sequencer class.
 

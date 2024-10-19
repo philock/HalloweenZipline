@@ -17,11 +17,15 @@ void Sequencer::setSequence(Event *sequence, int sequenceLength){
 
 void Sequencer::start(){
     _running = true;
+
+    DEBUG_MSG("Sequencer: start")
 }
 
 void Sequencer::stop(){
     _step = 0;
     _running = false;
+
+    DEBUG_MSG("Sequencer: stop")
 }
 
 void Sequencer::poll(){

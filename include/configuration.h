@@ -2,9 +2,10 @@
 #define CONFIGURATION_H
 
 #define DEBUG
+//#define DEBUG_MEASURE_LOOP_TIME
 
 // Launch sequence timing properties
-#define ZL_RUNUP_DELAY 500     // milliseconds
+#define ZL_RUNUP_DELAY 1000    // milliseconds
 #define ZL_LAUNCH_DELAY 200    // milliseconds
 #define ZL_WAIT_TO_RETURN 2000 // milliseconds
 
