@@ -14,6 +14,6 @@ There are two light barriers along a corridor. At the end of the corridor, a pup
 - Light barrier: E3JK-R4M1
 - MP3 module: YX5300
 - 4 channel relais card
-- 36V power supply
+- 36V 9.7A power supply
 - 5V power supply
 - GT2 timing belt and pulley

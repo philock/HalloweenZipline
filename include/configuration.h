@@ -32,8 +32,8 @@ const bool ZLMotorError[]      = {0,1,0};
 #define PIN_MOTOR_STEP 12
 #define PIN_MOTOR_DIR 13
 #define PIN_MOTOR_ALM 11
-#define PIN_LB_1 45
-#define PIN_LB_2 43
+#define PIN_LB_1 43
+#define PIN_LB_2 45
 #define PIN_SOCK_1A 54
 #define PIN_SOCK_1B 55
 #define PIN_SOCK_2A 56
