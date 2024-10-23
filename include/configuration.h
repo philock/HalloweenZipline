@@ -17,7 +17,7 @@
 #define ZL_ENDSTOP_OFFSET 0.01     // meters
 
 // Zipline movement properties
-#define ZL_V_MAX 1.5      // meters/sec
+#define ZL_V_MAX 2.5      // meters/sec
 #define ZL_V_RETURN 0.4   // meters/sec
 #define ZL_V_HOMING 0.3   // meters/sec
 #define ZL_ACCELERATION 4 // meters/sec^2
@@ -28,6 +28,13 @@ const bool ZLOverLimitsError[] = {1,0,0};
 const bool ZLEsNotReached[]    = {0,1,0};
 const bool ZLMotorError[]      = {0,0,1};
 const bool LBMisaligned[]      = {1,0,1};
+const bool maxErrCountLockout[]= {1,1,1};
+
+// System Properties
+#define INPUT_READ_INTERVAL 20            // milliseconds
+#define MOTOR_ALARM_REGISTRATION_TIME 200 // milliseconds
+#define MAX_ERROR_COUNT 5 
+#define LB2_MISALIGNED_TIMEOUT 15000      // milliseconds
 
 // Pin definitions
 #define PIN_LED_GREEN 7
@@ -47,9 +54,6 @@ const bool LBMisaligned[]      = {1,0,1};
 #define PIN_BTN_2 35
 #define PIN_ESTOP 39
 
-// System Properties
-#define INPUT_READ_INTERVAL 20            // milliseconds
-#define MOTOR_ALARM_REGISTRATION_TIME 200 // milliseconds 
 
 #ifdef DEBUG
     #define DEBUG_MSG(msg) Serial.println(msg);

@@ -24,6 +24,9 @@ LED ledGreen(PIN_LED_GREEN);
 LED ledRed(PIN_LED_RED);
 MD_YX5300 mp3(Serial1);
 
+int errorCounter = 0;
+bool errorState = true;
+
 /*--------------------
 Output control functions
 ----------------------*/
@@ -91,7 +94,7 @@ BEGIN_SEQUENCE(effectSequenceButton)
     DEFINE_EVENT_NO_PARAM(event_ledGreenRunning)
     DEFINE_EVENT_NO_PARAM(event_launchZipline)
     EVENT_DELAY(&zlRunupDelay)
-    DEFINE_EVENT_NO_PARAM(audioPlay)
+    //DEFINE_EVENT_NO_PARAM(audioPlay)
     DEFINE_EVENT_NO_PARAM(deactivateSocket1)
     DEFINE_EVENT_NO_PARAM(activateSocket2)
     EVENT_DELAY(&timeToReturn)
@@ -106,12 +109,16 @@ const int seqLenButton = sizeof(effectSequenceButton)/sizeof(Event);
 Input handler functions
 ----------------------*/
 void handler_button1(){
+    if(errorState) return;
+
     audioPlay();
 
     DEBUG_MSG("Button 1 pressed")
 }
 
 void handler_button2(){
+    if(errorState) return;
+
     effectSequencer.setSequence(&effectSequenceButton[0], seqLenButton);
     effectSequencer.start();
 
@@ -119,6 +126,7 @@ void handler_button2(){
 }
 
 void handler_estopActivation(){
+
     zipline.estop();
     effectSequencer.stop();
 
@@ -130,6 +138,8 @@ void handler_estopActivation(){
     ledRed.errCode(&estopError[0], 3);
     ledGreen.on();
 
+    errorState = true;
+
     DEBUG_MSG("E-stop pressed")
 }
 
@@ -138,10 +148,14 @@ void handler_estopRelease(){
 
     ledRed.off();
 
+    errorState = false;
+
     DEBUG_MSG("E-stop released")
 }
 
 void handler_lightbarrier1(){
+    if(errorState) return;
+
     effectSequencer.setSequence(&effectSequenceLightbarrier[0], seqLenLightbarrier);
     effectSequencer.start();
 
@@ -152,6 +166,20 @@ void handler_lightbarrier2(){
     zipline.stop();
 
     DEBUG_MSG("Light barrier 2 activated")
+}
+
+void handler_lightbarrier2Misaligned(){
+    zipline.estop();
+    effectSequencer.stop();
+    deactivateSocket1();
+    deactivateSocket2();
+    audioStop();
+    ledGreen.on();
+    ledRed.errCode(&LBMisaligned[0], 3);
+
+    errorState = true;
+
+    DEBUG_MSG("ERROR: Light barrier two misaligned")
 }
 
 void handler_motorAlarm(AlarmType alm){
@@ -187,6 +215,9 @@ void handler_motorAlarm(AlarmType alm){
 
         break;
     }
+
+    errorCounter ++;
+    errorState = true;
 }
 
 
@@ -200,6 +231,7 @@ void configureInputs(){
     estop.setDeactivationHandler(handler_estopRelease);
     lightbarrier1.setActivationHandler(handler_lightbarrier1);
     lightbarrier2.setActivationHandler(handler_lightbarrier2);
+    lightbarrier2.setLongpressHandler(handler_lightbarrier2Misaligned);
     zipline.setAlarmCb(handler_motorAlarm);
 
     button1.limitRate(INPUT_READ_INTERVAL);
@@ -207,6 +239,8 @@ void configureInputs(){
     estop.limitRate(INPUT_READ_INTERVAL);
     lightbarrier1.limitRate(INPUT_READ_INTERVAL);
     lightbarrier2.limitRate(INPUT_READ_INTERVAL);
+
+    lightbarrier2.setLongpressTime(LB2_MISALIGNED_TIMEOUT);
 }
 
 void configureOutputs(){
@@ -262,6 +296,17 @@ void loop() {
     ledRed.poll();
 
     mp3.check();
+
+    // Max number of errors reached, lock entire system and just update the error led.
+    if(errorCounter == MAX_ERROR_COUNT){
+
+        handler_estopActivation();
+
+        ledRed.errCode(&maxErrCountLockout[0], 3);
+
+        while(true) ledRed.poll();
+
+    }
 
     // measure number of loop iterations per second
     #ifdef DEBUG_MEASURE_LOOP_TIME
