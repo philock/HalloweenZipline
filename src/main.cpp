@@ -24,9 +24,6 @@ LED ledGreen(PIN_LED_GREEN);
 LED ledRed(PIN_LED_RED);
 MD_YX5300 mp3(Serial1);
 
-unsigned int loopIterationsCnt = 0;
-unsigned long lastLoopSpeedMeasurement = 0;
-
 /*--------------------
 Output control functions
 ----------------------*/
@@ -58,17 +55,64 @@ void audioStop(){
     mp3.playStop();
 }
 
+
+/*---------------------------------------------------
+Wrappers for bound events (for the lack of std::bind)
+---------------------------------------------------*/
+void event_ledGreenRunning(){ledGreen.blink();}
+void event_ledGreenIdle(){ledGreen.on();}
+void event_launchZipline(){zipline.launch();}
+
+
+/*----------------------
+Effect sequences
+------------------------*/
+long zlRunupDelay = ZL_RUNUP_DELAY;
+long timeToReturn = ZL_WAIT_TO_RETURN;
+long lightbarrierLaunchDelay = LB_LAUNCH_DELAY;
+
+BEGIN_SEQUENCE(effectSequenceLightbarrier)
+    DEFINE_EVENT_NO_PARAM(event_ledGreenRunning)
+    EVENT_DELAY(&lightbarrierLaunchDelay)
+    DEFINE_EVENT_NO_PARAM(event_launchZipline)
+    EVENT_DELAY(&zlRunupDelay)
+    DEFINE_EVENT_NO_PARAM(audioPlay)
+    DEFINE_EVENT_NO_PARAM(deactivateSocket1)
+    DEFINE_EVENT_NO_PARAM(activateSocket2)
+    EVENT_DELAY(&timeToReturn)
+    DEFINE_EVENT_NO_PARAM(activateSocket1)
+    DEFINE_EVENT_NO_PARAM(deactivateSocket2)
+    DEFINE_EVENT_NO_PARAM(audioStop)
+    DEFINE_EVENT_NO_PARAM(event_ledGreenIdle)
+END_SEQUENCE
+const int seqLenLightbarrier = sizeof(effectSequenceLightbarrier)/sizeof(Event);
+
+BEGIN_SEQUENCE(effectSequenceButton)
+    DEFINE_EVENT_NO_PARAM(event_ledGreenRunning)
+    DEFINE_EVENT_NO_PARAM(event_launchZipline)
+    EVENT_DELAY(&zlRunupDelay)
+    DEFINE_EVENT_NO_PARAM(audioPlay)
+    DEFINE_EVENT_NO_PARAM(deactivateSocket1)
+    DEFINE_EVENT_NO_PARAM(activateSocket2)
+    EVENT_DELAY(&timeToReturn)
+    DEFINE_EVENT_NO_PARAM(activateSocket1)
+    DEFINE_EVENT_NO_PARAM(deactivateSocket2)
+    DEFINE_EVENT_NO_PARAM(audioStop)
+    DEFINE_EVENT_NO_PARAM(event_ledGreenIdle)
+END_SEQUENCE
+const int seqLenButton = sizeof(effectSequenceButton)/sizeof(Event);
+
 /*--------------------
 Input handler functions
 ----------------------*/
 void handler_button1(){
-    zipline.launch();
+    audioPlay();
 
     DEBUG_MSG("Button 1 pressed")
 }
 
 void handler_button2(){
-    zipline.launch();
+    effectSequencer.setSequence(&effectSequenceButton[0], seqLenButton);
     effectSequencer.start();
 
     DEBUG_MSG("Button 2 pressed");
@@ -98,7 +142,7 @@ void handler_estopRelease(){
 }
 
 void handler_lightbarrier1(){
-    zipline.launchDelay();
+    effectSequencer.setSequence(&effectSequenceLightbarrier[0], seqLenLightbarrier);
     effectSequencer.start();
 
     DEBUG_MSG("Light barrier 1 activated")
@@ -145,24 +189,10 @@ void handler_motorAlarm(AlarmType alm){
     }
 }
 
-// wrappers for bound events
-void event_ledGreenRunning(){ledGreen.blink();}
-void event_ledGreenIdle(){ledGreen.on();}
 
-long zlRunupDelay = ZL_RUNUP_DELAY;
-const int seqLen = 10;
-BEGIN_SEQUENCE(effectSequence)
-    DEFINE_EVENT_NO_PARAM(event_ledGreenRunning)
-    EVENT_DELAY(&zlRunupDelay)
-    DEFINE_EVENT_NO_PARAM(activateSocket1)
-    DEFINE_EVENT_NO_PARAM(activateSocket2)
-    DEFINE_EVENT_NO_PARAM(audioPlay)
-    EVENT_DELAY(&zlRunupDelay)
-    DEFINE_EVENT_NO_PARAM(deactivateSocket1)
-    DEFINE_EVENT_NO_PARAM(deactivateSocket2)
-    DEFINE_EVENT_NO_PARAM(event_ledGreenIdle)
-END_SEQUENCE
-
+/*--------------------
+Misc. functions
+----------------------*/
 void configureInputs(){
     button1.setActivationHandler(handler_button1);
     button2.setActivationHandler(handler_button2);
@@ -198,7 +228,9 @@ void configureMP3(){
 }
 
 void setup() {
+    #ifdef DEBUG
     Serial.begin(115200);
+    #endif
 
     configureInputs();
     configureOutputs();
@@ -208,10 +240,13 @@ void setup() {
 
     configureMP3();
 
-    effectSequencer.setSequence(&effectSequence[0], seqLen);
-
     handler_estopActivation();
 }
+
+#ifdef DEBUG_MEASURE_LOOP_TIME
+unsigned int loopIterationsCnt = 0;
+unsigned long lastLoopSpeedMeasurement = 0;
+#endif
 
 void loop() {
     estop.poll();

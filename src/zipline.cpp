@@ -149,10 +149,10 @@ void Zipline::launch(){
     DEBUG_MSG("Zipline FSM state entry: launch")
 }
 
-void Zipline::launchDelay(){
+void Zipline::launchDelay(int delay){
     if(_state != ZLState::IDLE) return;
 
-    _pauseEnd = millis() + ZL_LAUNCH_DELAY;
+    _pauseEnd = millis() + delay;
 
     _state = ZLState::LAUNCH_DELAY;
 

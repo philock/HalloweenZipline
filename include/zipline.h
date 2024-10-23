@@ -59,7 +59,7 @@ class Zipline{
         // external state entry functions
         void homing();
         void launch();
-        void launchDelay();
+        void launchDelay(int delay);
         void estop();
         void estopRelease();
 
