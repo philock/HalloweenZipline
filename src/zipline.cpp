@@ -7,8 +7,10 @@ endstopBack(PIN_ES_BACK, false, false),
 alarm(PIN_MOTOR_ALM, true, false)
 {
     motor.setAcceleration(metersToSteps(ZL_ACCELERATION));
+    motor.setPinsInverted(true, false, false);
 
     alarm.limitRate(INPUT_READ_INTERVAL);
+    alarm.setLongpressTime(MOTOR_ALARM_REGISTRATION_TIME);
 
     _state = ZLState::ESTOP;
 }
@@ -46,7 +48,7 @@ void Zipline::poll(){
         break;
     }
 
-    if(alarm.read()){
+    if(alarm.readLongpress()){
         estop();
         _cbAlarm(AlarmType::MOTOR_ALARM);
     }
@@ -74,7 +76,16 @@ void Zipline::stateReturn(){
     motor.run();
 
     if(motor.distanceToGo() == 0 || endstopBack.read()){
-        _state = ZLState::IDLE;
+        
+        if(endstopBack.read()){
+            _state = ZLState::IDLE;
+
+        }
+        else{
+            estop();
+            _cbAlarm(AlarmType::ES_NOT_REACHED_ON_RETURN);
+
+        }
     }
 }
 
@@ -95,7 +106,7 @@ void Zipline::stateHoming(){
 
     if(endstopBack.read()){
         motor.setSpeed(0);
-        motor.setCurrentPosition(0);
+        motor.setCurrentPosition(metersToSteps(ZL_ENDSTOP_OFFSET));
 
         _state = ZLState::IDLE;
     }

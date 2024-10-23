@@ -7,24 +7,27 @@
 // Launch sequence timing properties
 #define ZL_RUNUP_DELAY 1000    // milliseconds
 #define ZL_LAUNCH_DELAY 200    // milliseconds
-#define ZL_WAIT_TO_RETURN 2000 // milliseconds
+#define ZL_WAIT_TO_RETURN 5000 // milliseconds
 
 // Zipline physical properties
 #define ZL_LENGTH 3.5              // meters
 #define M_STEPS_PER_REV 50         // steps
 #define M_WHEEL_CIRCUMFERENCE 0.12 // meters
-#define ZL_STOP_POS 3.4            // meters
+#define ZL_STOP_POS 3.0            // meters
+#define ZL_ENDSTOP_OFFSET 0.01     // meters
 
 // Zipline movement properties
-#define ZL_V_MAX 4        // meters/sec
-#define ZL_V_RETURN 1     // meters/sec
+#define ZL_V_MAX 2.5         // meters/sec
+#define ZL_V_RETURN 0.3   // meters/sec
 #define ZL_V_HOMING 0.2   // meters/sec
-#define ZL_ACCELERATION 6 // meters/sec^2
+#define ZL_ACCELERATION 4 // meters/sec^2
 
 // Error codes
 const bool estopError[]        = {0,0,0};
+const bool LBMisaligned[]      = {1,0,1};
 const bool ZLOverLimitsError[] = {1,0,0};
 const bool ZLMotorError[]      = {0,1,0};
+const bool ZLEsNotReached[]    = {0,0,1};
 
 // Pin definitions
 #define PIN_LED_GREEN 7
@@ -45,7 +48,8 @@ const bool ZLMotorError[]      = {0,1,0};
 #define PIN_ESTOP 39
 
 // System Properties
-#define INPUT_READ_INTERVAL 20 // milliseconds
+#define INPUT_READ_INTERVAL 20            // milliseconds
+#define MOTOR_ALARM_REGISTRATION_TIME 150 // milliseconds 
 
 #ifdef DEBUG
     #define DEBUG_MSG(msg) Serial.println(msg);

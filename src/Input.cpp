@@ -24,12 +24,21 @@ void Input::setDebounceTime(int tMS){
     _debounceTimeMS = tMS;
 }
 
+void Input::setLongpressTime(int tMS){
+    _longPressTimeMS = tMS;
+}
+
+
 void Input::setActivationHandler(CallbackFunction f){
     _activationHandler = f;
 }
 
 void Input::setDeactivationHandler(CallbackFunction f){
     _deactivationHandler = f;
+}
+
+void Input::setLongpressHandler(CallbackFunction f){
+    _longpressHandler = f;
 }
 
 bool Input::read(){
@@ -43,7 +52,7 @@ bool Input::read(){
 
             bool debounceDelay = millis() > _tLastChange + _debounceTimeMS;
 
-            if(debounceDelay){
+            if(debounceDelay && _isActive != state){
                 _isActive = state;
                 _tLastChange = millis();
 
@@ -57,14 +66,30 @@ bool Input::read(){
 
         bool debounceDelay = millis() > _tLastChange + _debounceTimeMS;
 
-        if(debounceDelay){
+        if(debounceDelay && _isActive != state){
             _isActive = state;
             _tLastChange = millis();
 
         }
+
     }
 
     return _isActive;
+}
+
+bool Input::readLongpress(){
+    bool longpressDelay = millis() > _tLastChange + _longPressTimeMS;
+
+    if(read() && longpressDelay){
+        _isLongpress = true;
+
+    }
+    else{
+        _isLongpress = false;
+        
+    }
+
+    return _isLongpress;
 }
 
 void Input::poll(){
@@ -94,6 +119,7 @@ void Input::handleInput(){
         
         _isActive = true;
         _tLastChange = millis();
+        _tRegisterLongpress = _tLastChange + _longPressTimeMS;
 
         if(_activationHandler) _activationHandler();
 
@@ -104,8 +130,21 @@ void Input::handleInput(){
     if(debounceDelay && _isActive == true && state == false){
 
         _isActive = false;
+        _isLongpress = false;
         _tLastChange = millis();
 
         if(_deactivationHandler) _deactivationHandler();
+
+        return;
+    }
+
+    bool longpressDelay = millis()  > _tRegisterLongpress;
+
+    if(longpressDelay && _isLongpress == false && _isActive == true){
+
+        _isLongpress = true;
+
+        if(_longpressHandler) _longpressHandler();
+
     }
 }

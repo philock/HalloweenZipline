@@ -27,12 +27,24 @@ int length = 3;
 
 float speed = 2.0;
 
-void button1ActivationHandler(){
+/* void button1ActivationHandler(){
     motor.setSpeed(-metersToSteps(speed));
 }
 
 void button1DeactivationHandler(){
     motor.setSpeed(0);
+} */
+
+void button1ActivationHandler(){
+    led.on();
+}
+
+void button1DeactivationHandler(){
+    led.off();
+}
+
+void button1LongpressHandler(){
+    led.blink();
 }
 
 void button2ActivationHandler(){
@@ -50,8 +62,10 @@ void estopActivationHandler(){
 void setup() {
     Serial.begin(115200);
 
-    button1.setActivationHandler(button1ActivationHandler);
+    /* button1.setActivationHandler(button1ActivationHandler);
     button1.setDeactivationHandler(button1DeactivationHandler);
+    button1.setLongpressHandler(button1LongpressHandler); */
+    button1.setLongpressTime(3000);
     button1.limitRate(20);
 
     button2.setActivationHandler(button2ActivationHandler);
@@ -64,7 +78,10 @@ void setup() {
 }
 
 void loop() {
-    button1.poll();
+    if(button1.readLongpress()) led.on();
+    else led.off();
+
+    //button1.poll();
     button2.poll();
 
     led.poll();

@@ -135,6 +135,13 @@ void handler_motorAlarm(AlarmType alm){
 
         break;
 
+    case AlarmType::ES_NOT_REACHED_ON_RETURN:
+    
+        ledRed.errCode(&ZLEsNotReached[0], 3);
+
+        DEBUG_MSG("Error: Endstop not reached while returning");
+
+        break;
     }
 }
 

@@ -10,8 +10,9 @@
 class Input{
     private:
         typedef void (*CallbackFunction)();
-        CallbackFunction _activationHandler = nullptr;
+        CallbackFunction _activationHandler   = nullptr;
         CallbackFunction _deactivationHandler = nullptr;
+        CallbackFunction _longpressHandler    = nullptr;
 
         int _pin;
         bool _activeHigh;
@@ -20,11 +21,14 @@ class Input{
         int _rateLimitMS;
 
         int _debounceTimeMS = 50;
+        int _longPressTimeMS = 1000;
 
         unsigned long _tNextRead;
         unsigned long _tLastChange;
+        unsigned long _tRegisterLongpress;
 
         bool _isActive = false;
+        bool _isLongpress = false;
 
         void handleInput();
 
@@ -33,11 +37,14 @@ class Input{
 
         void limitRate(int rateMS);
         void setDebounceTime(int tMS);
+        void setLongpressTime(int tMS);
 
         void setActivationHandler(CallbackFunction f);
         void setDeactivationHandler(CallbackFunction f);
+        void setLongpressHandler(CallbackFunction f);
 
         bool read();
+        bool readLongpress();
 
         void poll();
 

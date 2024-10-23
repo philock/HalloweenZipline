@@ -8,7 +8,8 @@
 
 enum AlarmType{
     ZL_OVER_LIMITS,
-    MOTOR_ALARM
+    MOTOR_ALARM,
+    ES_NOT_REACHED_ON_RETURN
 };
 
 class Zipline{
