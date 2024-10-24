@@ -104,7 +104,7 @@ void Zipline::stateLaunchDelay(){
 void Zipline::stateHoming(){
     motor.runSpeed();
 
-    if(endstopBack.read()){
+    if(endstopBack.read() || endstopFront.read()){
         motor.setSpeed(0);
         motor.setCurrentPosition(metersToSteps(ZL_ENDSTOP_OFFSET));
 
