@@ -111,7 +111,16 @@ Input handler functions
 void handler_button1(){
     if(errorState) return;
 
-    audioPlay();
+    effectSequencer.stop();
+
+    audioStop();
+
+    activateSocket1();
+    deactivateSocket2();
+
+    zipline.homing();
+
+    ledGreen.on();
 
     DEBUG_MSG("Button 1 pressed")
 }
@@ -130,7 +139,7 @@ void handler_estopActivation(){
     zipline.estop();
     effectSequencer.stop();
 
-    deactivateSocket1();
+    activateSocket1();
     deactivateSocket2();
 
     audioStop();
@@ -148,6 +157,9 @@ void handler_estopRelease(){
 
     ledRed.off();
 
+    activateSocket1();
+    deactivateSocket2();
+
     errorState = false;
 
     DEBUG_MSG("E-stop released")
@@ -156,6 +168,8 @@ void handler_estopRelease(){
 void handler_lightbarrier1(){
     if(errorState) return;
 
+    if(effectSequencer.isRunning()) return;
+    
     effectSequencer.setSequence(&effectSequenceLightbarrier[0], seqLenLightbarrier);
     effectSequencer.start();
 
@@ -269,7 +283,7 @@ void setup() {
     configureInputs();
     configureOutputs();
 
-    deactivateSocket1();
+    activateSocket1();
     deactivateSocket2();
 
     configureMP3();

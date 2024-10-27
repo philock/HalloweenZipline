@@ -28,6 +28,10 @@ void Sequencer::stop(){
     DEBUG_MSG("Sequencer: stop")
 }
 
+bool Sequencer::isRunning(){
+    return _running;
+}
+
 void Sequencer::poll(){
     if(_running){
         if(_sequence[_step].func == reinterpret_cast<void(*)(void*)>(SpecialEvents::DELAY)){

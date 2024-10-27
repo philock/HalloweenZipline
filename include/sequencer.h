@@ -36,6 +36,8 @@ class Sequencer{
         // called every cycle 
         void poll();
 
+        bool isRunning();
+
     private:
         Event *_sequence;
         int _sequenceLength;
