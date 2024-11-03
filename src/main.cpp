@@ -118,7 +118,7 @@ void handler_button1(){
     activateSocket1();
     deactivateSocket2();
 
-    zipline.homing();
+    zipline.returnHome();
 
     ledGreen.on();
 

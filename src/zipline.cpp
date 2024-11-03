@@ -139,7 +139,7 @@ void Zipline::homing(){
 }
 
 void Zipline::launch(){
-    if(_state != ZLState::IDLE) return;
+    if(!(_state == ZLState::IDLE || _state == ZLState::RETURN)) return;
 
     motor.setMaxSpeed(metersToSteps(ZL_V_MAX));
     motor.moveTo(metersToSteps(ZL_STOP_POS));
@@ -160,6 +160,8 @@ void Zipline::launchDelay(int delay){
 }
 
 void Zipline::returnHome(){
+    if(_state != ZLState::PAUSE) return;
+
     motor.setMaxSpeed(metersToSteps(ZL_V_RETURN));
     motor.moveTo(0);
 

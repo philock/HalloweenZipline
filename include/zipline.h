@@ -48,7 +48,6 @@ class Zipline{
         void stateHoming();
 
         // internal state entry functions
-        void returnHome();
         void pause();
 
     public:
@@ -60,6 +59,7 @@ class Zipline{
         void homing();
         void launch();
         void launchDelay(int delay);
+        void returnHome();
         void estop();
         void estopRelease();
 

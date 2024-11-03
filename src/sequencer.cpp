@@ -24,6 +24,7 @@ void Sequencer::start(){
 void Sequencer::stop(){
     _step = 0;
     _running = false;
+    _timerRunning = false;
 
     DEBUG_MSG("Sequencer: stop")
 }
