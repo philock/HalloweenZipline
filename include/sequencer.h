@@ -55,7 +55,7 @@ class Sequencer{
 Event name[] = {
 
 #define DEFINE_EVENT(func, param) \
-{ func, param },
+{ reinterpret_cast<void(*)(void*)>(func), param },
 
 #define DEFINE_EVENT_NO_PARAM(func) \
 { reinterpret_cast<void(*)(void*)>(func), nullptr },

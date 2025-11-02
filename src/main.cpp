@@ -65,6 +65,7 @@ Wrappers for bound events (for the lack of std::bind)
 void event_ledGreenRunning(){ledGreen.blink();}
 void event_ledGreenIdle(){ledGreen.on();}
 void event_launchZipline(){zipline.launch();}
+void event_launchToZipline(float *pos){zipline.launchTo(*pos);}
 
 
 /*----------------------
@@ -73,6 +74,36 @@ Effect sequences
 long zlRunupDelay = ZL_RUNUP_DELAY;
 long timeToReturn = ZL_WAIT_TO_RETURN;
 long lightbarrierLaunchDelay = LB_LAUNCH_DELAY;
+long zlLaunchTime = ZL_LAUNCH_TIME;
+float zlStopPos = ZL_STOP_POS;
+
+long zlBackupTime_1 =  ZL_BACKUP_TIME_1;
+long zlBackupTime_2 = ZL_BACKUP_TIME_2;
+long zlBackupTime_3 = ZL_BACKUP_TIME_3;
+float zlBackupPos_1 = ZL_BACKUP_POS_1;
+float zlBackupPos_2 = ZL_BACKUP_POS_2;
+float zlBackupPos_3 = ZL_BACKUP_POS_3;
+
+// short wiggle
+#define WIGGLE_1 \
+DEFINE_EVENT(event_launchToZipline, &zlBackupPos_1) \
+EVENT_DELAY(&zlBackupTime_1) \
+DEFINE_EVENT(event_launchToZipline, &zlStopPos) \
+EVENT_DELAY(&zlBackupTime_1)
+
+// medium wiggle
+#define WIGGLE_2 \
+DEFINE_EVENT(event_launchToZipline, &zlBackupPos_2) \
+EVENT_DELAY(&zlBackupTime_2) \
+DEFINE_EVENT(event_launchToZipline, &zlStopPos) \
+EVENT_DELAY(&zlBackupTime_2)
+
+// long wiggle
+#define WIGGLE_3 \
+DEFINE_EVENT(event_launchToZipline, &zlBackupPos_3) \
+EVENT_DELAY(&zlBackupTime_3) \
+DEFINE_EVENT(event_launchToZipline, &zlStopPos) \
+EVENT_DELAY(&zlBackupTime_3)
 
 BEGIN_SEQUENCE(effectSequenceLightbarrier)
     DEFINE_EVENT_NO_PARAM(event_ledGreenRunning)
@@ -82,14 +113,30 @@ BEGIN_SEQUENCE(effectSequenceLightbarrier)
     EVENT_DELAY(&zlRunupDelay)
     DEFINE_EVENT_NO_PARAM(activateSocket2)
     DEFINE_EVENT_NO_PARAM(deactivateSocket1)
-    EVENT_DELAY(&timeToReturn)
+    EVENT_DELAY(&zlLaunchTime)
+
+    WIGGLE_2
+    WIGGLE_2
+    WIGGLE_3
+    WIGGLE_1
+    WIGGLE_1
+    WIGGLE_3
+    WIGGLE_2
+    WIGGLE_1
+    WIGGLE_3
+    WIGGLE_2
+
+    DEFINE_EVENT(event_launchToZipline, &zlBackupPos_2)
+
+    //EVENT_DELAY(&timeToReturn)
     DEFINE_EVENT_NO_PARAM(activateSocket1)
     DEFINE_EVENT_NO_PARAM(deactivateSocket2)
-    DEFINE_EVENT_NO_PARAM(audioStop)
+    //DEFINE_EVENT_NO_PARAM(audioStop)
     DEFINE_EVENT_NO_PARAM(event_ledGreenIdle)
 END_SEQUENCE
 const int seqLenLightbarrier = sizeof(effectSequenceLightbarrier)/sizeof(Event);
 
+// Not used
 BEGIN_SEQUENCE(effectSequenceButton)
     DEFINE_EVENT_NO_PARAM(event_ledGreenRunning)
     DEFINE_EVENT_NO_PARAM(audioPlay)
@@ -128,7 +175,9 @@ void handler_button1(){
 void handler_button2(){
     if(errorState) return;
 
-    effectSequencer.setSequence(&effectSequenceButton[0], seqLenButton);
+    if(effectSequencer.isRunning()) return;
+    
+    effectSequencer.setSequence(&effectSequenceLightbarrier[0], seqLenLightbarrier);
     effectSequencer.start();
 
     DEBUG_MSG("Button 2 pressed");
@@ -177,7 +226,7 @@ void handler_lightbarrier1(){
 }
 
 void handler_lightbarrier2(){
-    zipline.stop();
+    //zipline.stop();
 
     DEBUG_MSG("Light barrier 2 activated")
 }
@@ -241,12 +290,16 @@ Misc. functions
 void configureInputs(){
     button1.setActivationHandler(handler_button1);
     button2.setActivationHandler(handler_button2);
-    estop.setActivationHandler(handler_estopActivation);
+    //estop.setActivationHandler(handler_estopActivation);
+    estop.setLongpressHandler(handler_estopActivation);
     estop.setDeactivationHandler(handler_estopRelease);
     lightbarrier1.setActivationHandler(handler_lightbarrier1);
     lightbarrier2.setActivationHandler(handler_lightbarrier2);
     lightbarrier2.setLongpressHandler(handler_lightbarrier2Misaligned);
     zipline.setAlarmCb(handler_motorAlarm);
+
+    estop.setLongpressTime(1000);
+    estop.setDebounceTime(200);
 
     button1.limitRate(INPUT_READ_INTERVAL);
     button2.limitRate(INPUT_READ_INTERVAL);

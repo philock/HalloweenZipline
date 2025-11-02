@@ -5,16 +5,27 @@
 //#define DEBUG_MEASURE_LOOP_TIME
 
 // Launch sequence timing properties
-#define LB_LAUNCH_DELAY 600    // milliseconds
+#define LB_LAUNCH_DELAY 800     // milliseconds
 #define ZL_RUNUP_DELAY 600     // milliseconds
-#define ZL_WAIT_TO_RETURN 20000// milliseconds
+#define ZL_WAIT_TO_RETURN 3000 // milliseconds
+#define ZL_LAUNCH_TIME 1200 
+
+// Wiggle sequence properties
+#define ZL_WIGGLE_ACCELERATION 7
+#define ZL_WIGGLE_V_MAX 4
+#define ZL_BACKUP_TIME_1 400
+#define ZL_BACKUP_TIME_2 500
+#define ZL_BACKUP_TIME_3 600
+#define ZL_BACKUP_POS_1 2.7
+#define ZL_BACKUP_POS_2 2.6
+#define ZL_BACKUP_POS_3 2.5
 
 // Zipline physical properties
 #define ZL_LENGTH 3.5              // meters
 #define M_STEPS_PER_REV 50         // steps
 #define M_WHEEL_CIRCUMFERENCE 0.12 // meters
-#define ZL_STOP_POS 3.0            // meters
 #define ZL_ENDSTOP_OFFSET 0.01     // meters
+#define ZL_STOP_POS 3.1            // meters
 
 // Zipline movement properties
 #define ZL_V_MAX 3.2      // meters/sec
