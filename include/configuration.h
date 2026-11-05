@@ -1,26 +1,27 @@
 #ifndef CONFIGURATION_H
 #define CONFIGURATION_H
 
-//#define DEBUG
+#define DEBUG
 //#define DEBUG_MEASURE_LOOP_TIME
 
 // Launch sequence timing properties
-#define LB_LAUNCH_DELAY 600    // milliseconds
-#define ZL_RUNUP_DELAY 600     // milliseconds
-#define ZL_WAIT_TO_RETURN 20000// milliseconds
+#define LB_LAUNCH_DELAY 1000    // milliseconds
+#define ZL_RUNUP_DELAY 400     // milliseconds
+#define ZL_WAIT_TO_RETURN 10000// milliseconds
 
 // Zipline physical properties
 #define ZL_LENGTH 3.5              // meters
 #define M_STEPS_PER_REV 50         // steps
 #define M_WHEEL_CIRCUMFERENCE 0.12 // meters
-#define ZL_STOP_POS 3.0            // meters
-#define ZL_ENDSTOP_OFFSET 0.01     // meters
+#define ZL_STOP_POS 3.4            // meters
+#define ZL_ENDSTOP_OFFSET 3.5      // meters
+#define ZL_RETURN_POS 0.8
 
 // Zipline movement properties
-#define ZL_V_MAX 3.2      // meters/sec
+#define ZL_V_MAX 3.0 //3.2      // meters/sec
 #define ZL_V_RETURN 0.5   // meters/sec
 #define ZL_V_HOMING 0.5   // meters/sec
-#define ZL_ACCELERATION 4 // meters/sec^2
+#define ZL_ACCELERATION 3.8 // meters/sec^2
 
 // Error codes
 const bool estopError[]        = {0,0,0};

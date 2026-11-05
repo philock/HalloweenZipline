@@ -65,8 +65,8 @@ void Zipline::stateLaunch(){
     }
 
     if(endstopFront.read()){
-        estop();
-        _cbAlarm(AlarmType::ZL_OVER_LIMITS);
+        //estop();
+        //_cbAlarm(AlarmType::ZL_OVER_LIMITS);
 
         DEBUG_MSG("Error: Motor reached endstop while in FSM launch state")
     }
@@ -75,18 +75,22 @@ void Zipline::stateLaunch(){
 void Zipline::stateReturn(){
     motor.run();
 
-    if(motor.distanceToGo() == 0 || endstopBack.read()){
+    if(motor.distanceToGo() == 0 ){//|| endstopBack.read()){
         
-        if(endstopBack.read()){
-            _state = ZLState::IDLE;
+        //if(endstopBack.read()){
+        _state = ZLState::IDLE;
 
-        }
-        else{
-            estop();
-            _cbAlarm(AlarmType::ES_NOT_REACHED_ON_RETURN);
+        //}
+        //else{
+        //    estop();
+        //    _cbAlarm(AlarmType::ES_NOT_REACHED_ON_RETURN);
 
-        }
+        //}
     }
+}
+
+bool Zipline::isIdle(){
+    return _state == ZLState::IDLE;
 }
 
 void Zipline::statePause(){
@@ -131,7 +135,7 @@ void Zipline::estopRelease(){
 
 void Zipline::homing(){
     motor.setMaxSpeed(metersToSteps(ZL_V_MAX));
-    motor.setSpeed(-metersToSteps(ZL_V_HOMING));
+    motor.setSpeed(metersToSteps(ZL_V_HOMING));
 
     _state = ZLState::HOMING;
 
@@ -163,7 +167,7 @@ void Zipline::returnHome(){
     if(_state != ZLState::PAUSE) return;
 
     motor.setMaxSpeed(metersToSteps(ZL_V_RETURN));
-    motor.moveTo(0);
+    motor.moveTo(metersToSteps(ZL_RETURN_POS));
 
     _state = ZLState::RETURN;
 

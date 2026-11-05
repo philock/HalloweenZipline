@@ -70,6 +70,8 @@ class Zipline{
         // cyclic FSM update function, called on every loop
         void poll();
 
+        bool isIdle();
+
 };
 
 #endif

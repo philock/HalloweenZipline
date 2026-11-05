@@ -77,9 +77,9 @@ long lightbarrierLaunchDelay = LB_LAUNCH_DELAY;
 BEGIN_SEQUENCE(effectSequenceLightbarrier)
     DEFINE_EVENT_NO_PARAM(event_ledGreenRunning)
     EVENT_DELAY(&lightbarrierLaunchDelay)
-    DEFINE_EVENT_NO_PARAM(audioPlay)
     DEFINE_EVENT_NO_PARAM(event_launchZipline)
     EVENT_DELAY(&zlRunupDelay)
+    DEFINE_EVENT_NO_PARAM(audioPlay)
     DEFINE_EVENT_NO_PARAM(activateSocket2)
     DEFINE_EVENT_NO_PARAM(deactivateSocket1)
     EVENT_DELAY(&timeToReturn)
@@ -92,9 +92,9 @@ const int seqLenLightbarrier = sizeof(effectSequenceLightbarrier)/sizeof(Event);
 
 BEGIN_SEQUENCE(effectSequenceButton)
     DEFINE_EVENT_NO_PARAM(event_ledGreenRunning)
-    DEFINE_EVENT_NO_PARAM(audioPlay)
     DEFINE_EVENT_NO_PARAM(event_launchZipline)
     EVENT_DELAY(&zlRunupDelay)
+    DEFINE_EVENT_NO_PARAM(audioPlay)
     DEFINE_EVENT_NO_PARAM(activateSocket2)
     DEFINE_EVENT_NO_PARAM(deactivateSocket1)
     EVENT_DELAY(&timeToReturn)
@@ -169,6 +169,9 @@ void handler_lightbarrier1(){
     if(errorState) return;
 
     if(effectSequencer.isRunning()) return;
+
+    if(!zipline.isIdle()) return;
+
     
     effectSequencer.setSequence(&effectSequenceLightbarrier[0], seqLenLightbarrier);
     effectSequencer.start();
@@ -269,7 +272,7 @@ void configureOutputs(){
 void configureMP3(){
     Serial1.begin(MD_YX5300::SERIAL_BPS);
     mp3.begin();
-    mp3.setSynchronous(true);
+    mp3.setSynchronous(false);
     mp3.playFolderRepeat(1);
     mp3.volume(mp3.volumeMax());
 
